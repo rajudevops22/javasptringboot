@@ -19,8 +19,8 @@
       sh "${mvnHome}/bin/mvn test"
    } 
 	  
-	     stage('SonarQube Analysis') {
-        def mvnHome =  tool name: 'Maven-3', type: 'maven'
+   stage('SonarQube Analysis') {
+      def mvnHome =  tool name: 'Maven-3', type: 'maven'
 		
       /*  def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         env.PATH = "${sonarhome}/bin:${env.PATH}"
@@ -60,8 +60,7 @@
    }
     sh 'sudo docker push rajuseeram22/demoapp:0.0.1'
    }
-	
-	
+		
    stage('Email Notification'){
       mail bcc: '', body: '''Hi Welcome to jenkins email alerts
       Thanks
