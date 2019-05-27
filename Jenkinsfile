@@ -22,15 +22,15 @@
 	     stage('SonarQube Analysis') {
         def mvnHome =  tool name: 'Maven-3', type: 'maven'
 		
-       def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+      /*  def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         env.PATH = "${sonarhome}/bin:${env.PATH}"
 	   sh "${sonarhome}/bin/sonar-scanner" 
 		     sh 'printenv' 
-			 
-       /* withSonarQubeEnv('sonarserver') { 
+	  }*/		 
+       withSonarQubeEnv('sonarserver') { 
           sh "${mvnHome}/bin/mvn  sonar:sonar"
 	
-        }*/
+      
     }
 	
 /* stage('deploy to nexus'){
