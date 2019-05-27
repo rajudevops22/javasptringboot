@@ -1,5 +1,5 @@
   node{
-     def ansibleip = '192.168.1.111'
+   def ansibleip = '192.168.1.111'
    def ansibleuser = 'raju'
    //def stopTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/tomcat8/bin/shutdown.sh"
    //def startTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/tomcat8/bin/startup.sh"
@@ -14,24 +14,24 @@
       sh "${mvnHome}/bin/mvn clean package"
    }
 
- /*  stage('test'){
+   stage('test'){
      def mvnHome =  tool name: 'Maven-3', type: 'maven'   
       sh "${mvnHome}/bin/mvn test"
-   } */
+   } 
 	  
-	/*     stage('SonarQube Analysis') {
+	     stage('SonarQube Analysis') {
         def mvnHome =  tool name: 'Maven-3', type: 'maven'
 		
        def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         env.PATH = "${sonarhome}/bin:${env.PATH}"
 	   sh "${sonarhome}/bin/sonar-scanner" 
-		     sh 'printenv' */
+		     sh 'printenv' 
 			 
        /* withSonarQubeEnv('sonarserver') { 
           sh "${mvnHome}/bin/mvn  sonar:sonar"
 	
-        }
-    }*/
+        }*/
+    }
 	
 /* stage('deploy to nexus'){
 	   def mvnHome =  tool name: 'Maven-3', type: 'maven'
