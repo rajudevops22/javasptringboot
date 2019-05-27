@@ -28,10 +28,9 @@
 		     sh 'printenv' 
 	  }*/		 
        withSonarQubeEnv('sonarserver') { 
-          sh "${mvnHome}/bin/mvn  sonar:sonar"
-	
-      
-    }
+          sh "${mvnHome}/bin/mvn  sonar:sonar"   
+       }
+	     }
 	
 /* stage('deploy to nexus'){
 	   def mvnHome =  tool name: 'Maven-3', type: 'maven'
@@ -39,13 +38,13 @@
    } 
 */
 
-sshagent(['ansible-ckey']) {
+/*sshagent(['ansible-ckey']) {
 	sh 'mv target/myweb*.war target/myweb.war' 
 	sh 'cd target'
 	sh 'pwd'
 	sh 'ls -lart'
   sh "${copyWar}"
-}
+}*/
    
    stage('Build Docker Image'){
 	def dockerhome =  tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
@@ -56,11 +55,11 @@ sshagent(['ansible-ckey']) {
    stage('Upload Image to DockerHub'){
 	 def dockerhome =  tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
 	 env.PATH = "${dockerhome}/bin:${env.PATH}"
-    withCredentials([usernameColonPassword(credentialsId: 'docker-hub', variable: 'password')]) {
-      sh "sudo docker login -u rajuseeram22 -p ${password}"
-    }
+	   withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerhubpwd')]) {
+   sh "sudo docker login -u rajuseeram22 -p ${dockerhubpwd}"
+   }
     sh 'sudo docker push rajuseeram22/demoapp:0.0.1'
-  }
+   }
 	
 	
    stage('Email Notification'){
