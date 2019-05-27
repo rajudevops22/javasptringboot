@@ -1,5 +1,5 @@
   node{
-     def ansibleip = '192.168.1.111'
+   def ansibleip = '192.168.1.111'
    def ansibleuser = 'raju'
    //def stopTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/tomcat8/bin/shutdown.sh"
    //def startTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/tomcat8/bin/startup.sh"
@@ -14,24 +14,23 @@
       sh "${mvnHome}/bin/mvn clean package"
    }
 
- /*  stage('test'){
+   stage('test'){
      def mvnHome =  tool name: 'Maven-3', type: 'maven'   
       sh "${mvnHome}/bin/mvn test"
-   } */
+   } 
 	  
-	/*     stage('SonarQube Analysis') {
+	     stage('SonarQube Analysis') {
         def mvnHome =  tool name: 'Maven-3', type: 'maven'
 		
-       def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+      /*  def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         env.PATH = "${sonarhome}/bin:${env.PATH}"
 	   sh "${sonarhome}/bin/sonar-scanner" 
-		     sh 'printenv' */
-			 
-       /* withSonarQubeEnv('sonarserver') { 
-          sh "${mvnHome}/bin/mvn  sonar:sonar"
-	
-        }
-    }*/
+		     sh 'printenv' 
+	  }*/		 
+       withSonarQubeEnv('sonarserver') { 
+          sh "${mvnHome}/bin/mvn  sonar:sonar"   
+       }
+	     }
 	
 /* stage('deploy to nexus'){
 	   def mvnHome =  tool name: 'Maven-3', type: 'maven'
@@ -39,13 +38,13 @@
    } 
 */
 
-sshagent(['ansible-ckey']) {
+/*sshagent(['ansible-ckey']) {
 	sh 'mv target/myweb*.war target/myweb.war' 
 	sh 'cd target'
 	sh 'pwd'
 	sh 'ls -lart'
   sh "${copyWar}"
-}
+}*/
    
    stage('Build Docker Image'){
 	def dockerhome =  tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
@@ -56,11 +55,11 @@ sshagent(['ansible-ckey']) {
    stage('Upload Image to DockerHub'){
 	 def dockerhome =  tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
 	 env.PATH = "${dockerhome}/bin:${env.PATH}"
-    withCredentials([usernameColonPassword(credentialsId: 'docker-hub', variable: 'password')]) {
-      sh "sudo docker login -u rajuseeram22 -p ${password}"
-    }
+	   withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerhubpwd')]) {
+   sh "sudo docker login -u rajuseeram22 -p ${dockerhubpwd}"
+   }
     sh 'sudo docker push rajuseeram22/demoapp:0.0.1'
-  }
+   }
 	
 	
    stage('Email Notification'){
