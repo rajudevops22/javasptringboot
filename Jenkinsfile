@@ -8,7 +8,7 @@ node{
    def copyansibleplaybook = "scp -o StrictHostKeyChecking=no ansibleTomactDeployPlaybook.yaml ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts"
   
    stage('SCM Checkout'){
-     git 'https://github.com/rajudevops22/javademoapp'
+     git 'https://github.com/rajudevops22/javasptringboot.git'
    }
    stage('Compile-Package'){
 
