@@ -3,9 +3,9 @@ node{
    emailext body: "Jenkins job started with build number ${BUILD_NUMBER}", subject: "Jenkins job started with ${BUILD_NUMBER}", to: 'raju.seeram22@gmail.com'
    def ansibleip = '192.168.1.95'
    def ansibleuser = 'raju'
-   def ansibledploy = "ssh ${ansibleuser}@${ansibleip}  ansible-playbook  /home/raju/deployartifacts/ansibleTomactDeployPlaybook.yaml --key-file '/home/raju/deploy-server-key.pem'"
-   def copyWar = "scp -o StrictHostKeyChecking=no target/*.jar ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts"
-   def copyansibleplaybook = "scp -o StrictHostKeyChecking=no ansibleTomactDeployPlaybook.yaml ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts"
+   def ansibledploy = "ssh ${ansibleuser}@${ansibleip}  ansible-playbook  /home/raju/deployartifacts/javasptringboot/ansibleTomactDeployPlaybook.yaml --key-file '/home/raju/deploy-server-key.pem'"
+   def copyWar = "scp -o StrictHostKeyChecking=no target/*.jar ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts/javasptringboot"
+   def copyansibleplaybook = "scp -o StrictHostKeyChecking=no ansibleTomactDeployPlaybook.yaml ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts/javasptringboot"
   
    stage('SCM Checkout'){
      git 'https://github.com/rajudevops22/javasptringboot.git'
@@ -38,7 +38,7 @@ stage('deploy to nexus'){
    } 
 stage ('deploy to tomcat'){
 sshagent(['ansible-server-key']) {
-	sh 'mv target/*.jar target/myweb.war' 
+	sh 'mv target/*.jar target/springbootapp.jar' 
 	sh 'cd target'
 	sh 'pwd'
 	sh 'ls -lart'
