@@ -19,7 +19,7 @@ node{
 	   stage('Unit Test'){
      def mvnHome =  tool name: 'Maven-3', type: 'maven'   
       sh "${mvnHome}/bin/mvn test"
-	  junit "target/surefire-reports/*.xml"
+	  junit 'target/surefire-reports/*.xml'
    } 
 
   stage('SonarQube Analysis') {
@@ -67,6 +67,7 @@ sshagent(['ansible-server-key']) {
 	catch (err) {
 		//publishHTML(target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'coverage', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: 'Report'])
 		emailext body: "${err} at Build numebr ${BUILD_NUMBER}", subject: 'Failure', to: 'raju.seeram22@gmail.com'
+		 junit 'target/surefire-reports/*.xml'
     /*stage('Email Notification'){
       mail bcc: '', body: '''Hi Welcome to jenkins email alerts
       Thanks
