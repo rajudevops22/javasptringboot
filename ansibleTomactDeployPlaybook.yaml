@@ -1,0 +1,13 @@
+---
+- hosts: webserver
+  remote_user: ec2-user
+  become: yes
+  tasks:
+      - name : stop the service
+        service : name=tomcat   state=stopped
+        
+      - name : deploying war file
+        copy : src=/home/raju/deployartifacts/myspringapp.war dest=/usr/share/tomcat/webapps/myspringapp.war
+
+      - name : start the service
+        service : name=tomcat   state=started
