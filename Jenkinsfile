@@ -16,6 +16,12 @@ node{
       sh "${mvnHome}/bin/mvn clean package -DskipTests=true"
    }
 
+	   stage('Unit Test'){
+     def mvnHome =  tool name: 'Maven-3', type: 'maven'   
+      sh "${mvnHome}/bin/mvn test"
+	  junit "target/surefire-reports/*.xml"
+   } 
+
   stage('SonarQube Analysis') {
         def mvnHome =  tool name: 'Maven-3', type: 'maven'
 		
@@ -25,10 +31,6 @@ node{
 	}
     }
 
-  stage('Unit Test'){
-     def mvnHome =  tool name: 'Maven-3', type: 'maven'   
-      sh "${mvnHome}/bin/mvn test"
-   } 
 	
 stage('deploy to nexus'){
 	   def mvnHome =  tool name: 'Maven-3', type: 'maven'
