@@ -1,50 +1,50 @@
-  node{
+node{
+   try{
+   emailext body: "Jenkins job started with build number ${BUILD_NUMBER}", subject: "Jenkins job started with ${BUILD_NUMBER}", to: 'raju.seeram22@gmail.com'
    def ansibleip = '192.168.1.111'
    def ansibleuser = 'raju'
-   //def stopTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/tomcat8/bin/shutdown.sh"
-   //def startTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/tomcat8/bin/startup.sh"
-   def copyWar = "scp -o StrictHostKeyChecking=no myweb.war ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts"
+   def ansibledploy = "ssh ${ansibleuser}@${ansibleip}  ansible-playbook  /home/raju/deployartifacts/ansibleTomactDeployPlaybook.yaml --key-file '/home/raju/deploy-server-key.pem'"
+   def copyWar = "scp -o StrictHostKeyChecking=no target/*.jar ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts"
+   def copyansibleplaybook = "scp -o StrictHostKeyChecking=no ansibleTomactDeployPlaybook.yaml ${ansibleuser}@${ansibleip}:/home/raju/deployartifacts"
   
    stage('SCM Checkout'){
-     git 'https://github.com/rajudevops22/javasptringboot.git'
+     git 'https://github.com/rajudevops22/javademoapp'
    }
    stage('Compile-Package'){
-    
+
       def mvnHome =  tool name: 'Maven-3', type: 'maven'   
       sh "${mvnHome}/bin/mvn clean package -DskipTests=true"
    }
 
-	  
-   stage('SonarQube Analysis') {
-      def mvnHome =  tool name: 'Maven-3', type: 'maven'
+  stage('SonarQube Analysis') {
+        def mvnHome =  tool name: 'Maven-3', type: 'maven'
 		
-      /*  def sonarhome = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-        env.PATH = "${sonarhome}/bin:${env.PATH}"
-	   sh "${sonarhome}/bin/sonar-scanner" 
-		     sh 'printenv' 
-	  }*/		 
-       withSonarQubeEnv('sonarserver') { 
-          sh "${mvnHome}/bin/mvn  sonar:sonar -DskipTests=true"   
-       }
-	     }
-   stage('Test'){
+			 
+        withSonarQubeEnv('sonarserver') { 
+          sh "${mvnHome}/bin/mvn  sonar:sonar -DskipTests=true"
+	}
+    }
+
+  stage('Unit Test'){
      def mvnHome =  tool name: 'Maven-3', type: 'maven'   
       sh "${mvnHome}/bin/mvn test"
    } 
 	
-    stage('deploy to nexus'){
+stage('deploy to nexus'){
 	   def mvnHome =  tool name: 'Maven-3', type: 'maven'
        sh "${mvnHome}/bin/mvn deploy -DskipTests=true"
    } 
-
-
-/*sshagent(['ansible-ckey']) {
-	sh 'mv target/myweb*.war target/myweb.war' 
+stage ('deploy to tomcat'){
+sshagent(['ansible-server-key']) {
+	sh 'mv target/*.jar target/myweb.war' 
 	sh 'cd target'
 	sh 'pwd'
 	sh 'ls -lart'
   sh "${copyWar}"
-}*/
+  sh "${copyansibleplaybook}"
+  sh "${ansibledploy}"
+}
+}
    
    stage('Build Docker Image'){
 	def dockerhome =  tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
@@ -52,20 +52,41 @@
 	   sh 'sudo docker build -t rajuseeram22/demoapp:0.0.1 .'
    }
 
-   stage('Upload Image to DockerHub'){
+/*   stage('Upload Image to DockerHub'){
 	 def dockerhome =  tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
 	 env.PATH = "${dockerhome}/bin:${env.PATH}"
-	   withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerhubpwd')]) {
-   sh "sudo docker login -u rajuseeram22 -p ${dockerhubpwd}"
-   }
+    withCredentials([usernameColonPassword(credentialsId: 'docker-hub', variable: 'password')]) {
+      sh "sudo docker login -u rajuseeram22 -p ${password}"
+    }
     sh 'sudo docker push rajuseeram22/demoapp:0.0.1'
-   }
-		
-   stage('Email Notification'){
+  } */
+ }
+	
+	catch (err) {
+		//publishHTML(target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'coverage', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: 'Report'])
+		emailext body: "${err} at Build numebr ${BUILD_NUMBER}", subject: 'Failure', to: 'raju.seeram22@gmail.com'
+    /*stage('Email Notification'){
       mail bcc: '', body: '''Hi Welcome to jenkins email alerts
       Thanks
-      Raju''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'raju.seeram22@gmail.com'
+      Raju''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'raju.seeram22@gmail.com' 
+   } */
    }
+	
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'generatedFile.txt', onlyIfSuccessful: true
+            
+            echo 'I will always say Hello again!'
+                
+            emailext attachLog: true, attachmentsPattern: 'generatedFile.txt',
+                body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                recipientProviders: [developers(), requestor()],
+                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
+            
+        }
+    }
+
 }
 
 
